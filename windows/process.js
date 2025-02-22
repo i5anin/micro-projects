@@ -4,45 +4,26 @@ import path from "path";
 import { fileURLToPath } from "url";
 import iconv from "iconv-lite";
 
-// Получаем __dirname в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Функция выполнения команд с корректной кодировкой
 async function runCommand(command) {
     return new Promise((resolve, reject) => {
         exec(`cmd.exe /C ${command}`, { encoding: "buffer" }, (error, stdout, stderr) => {
             if (error) return reject(error);
             if (stderr.length > 0) return reject(stderr);
-
-            // Декодируем вывод из CP866 в UTF-8
             resolve(iconv.decode(stdout, "cp866").trim());
         });
     });
 }
 
-// Функция очистки строк от артефактов
+// Функция очистки строк
 function cleanString(str) {
-    return str.replace(/\r/g, "").trim();
+    return str ? str.replace(/\r/g, "").trim() : "";
 }
 
-// Получение имени ПК
-async function getComputerName() {
-    return runCommand("wmic computersystem get Name /format:list")
-        .then((output) => cleanString(output.split("=")[1] || "UnknownPC"))
-        .catch(() => "UnknownPC");
-}
-
-// Получение модели материнской платы
-async function getMotherboardModel() {
-    return runCommand("wmic baseboard get Product /format:list")
-        .then((output) => cleanString(output.split("=")[1] || "UnknownBoard"))
-        .catch(() => "UnknownBoard");
-}
-
-// Получение списка процессов
 async function getProcesses() {
-    const command = `wmic process get Name,ExecutablePath /format:csv`;
+    const command = `wmic process get Name,ProcessId,ThreadCount,CreationDate,ExecutablePath,CommandLine,WorkingSetSize /format:csv`;
     const output = await runCommand(command);
 
     return output
@@ -50,13 +31,23 @@ async function getProcesses() {
         .slice(1)
         .map((line) => {
             const parts = line.split(",");
-            if (parts.length < 3) return null;
-            return { name: cleanString(parts[1]), path: cleanString(parts[2]) };
+            if (parts.length < 7) return null;
+
+            return {
+                name: cleanString(parts[1]) || "Unknown",
+                pid: Number.isFinite(parseInt(parts[2], 10)) ? parseInt(parts[2], 10) : "Invalid",
+                threads: Number.isFinite(parseInt(parts[3], 10)) ? parseInt(parts[3], 10) : "Invalid",
+                startTime: cleanString(parts[4]) || "Unknown",
+                path: cleanString(parts[5]) || "Unknown",
+                commandLine: cleanString(parts[6]) || "Unknown",
+                memoryUsage: Number.isFinite(parseInt(parts[7], 10))
+                    ? (parseInt(parts[7], 10) / 1024).toFixed(2) + " KB"
+                    : "Invalid"
+            };
         })
         .filter(Boolean);
 }
 
-// Получение списка служб
 async function getServices() {
     const command = `wmic service get Name,DisplayName,State,StartMode /format:csv`;
     const output = await runCommand(command);
@@ -77,17 +68,21 @@ async function getServices() {
         .filter(Boolean);
 }
 
-// Основная функция
 (async () => {
     try {
-        const computerName = await getComputerName();
-        const motherboard = await getMotherboardModel();
+        const computerName = await runCommand("wmic computersystem get Name /format:list")
+            .then((output) => cleanString(output.split("=")[1] || "UnknownPC"))
+            .catch(() => "UnknownPC");
+
+        const motherboard = await runCommand("wmic baseboard get Product /format:list")
+            .then((output) => cleanString(output.split("=")[1] || "UnknownBoard"))
+            .catch(() => "UnknownBoard");
+
         const filenamePrefix = `${computerName}_${motherboard}`.replace(/\s+/g, "_");
 
         const processes = await getProcesses();
         const services = await getServices();
 
-        // Запись файлов в UTF-8
         await writeFile(
             path.join(__dirname, `${filenamePrefix}.process.json`),
             JSON.stringify(processes, null, 2),
