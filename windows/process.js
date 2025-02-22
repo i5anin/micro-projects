@@ -85,13 +85,13 @@ async function getServices() {
         const services = await getServices();
 
         await writeFile(
-            path.join(__dirname, `${filenamePrefix}.process`),
+            path.join(__dirname, `${filenamePrefix}.process.json`),
             JSON.stringify(processes, null, 2),
             "utf8"
         );
 
         await writeFile(
-            path.join(__dirname, `${filenamePrefix}.services`),
+            path.join(__dirname, `${filenamePrefix}.services.json`),
             JSON.stringify(services, null, 2),
             "utf8"
         );
