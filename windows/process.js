@@ -2,18 +2,21 @@ import { exec } from "child_process";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import iconv from "iconv-lite";
 
 // Получаем __dirname в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Функция выполнения команд с UTF-8
-function runCommand(command) {
+// Функция выполнения команд с корректной кодировкой
+async function runCommand(command) {
     return new Promise((resolve, reject) => {
-        exec(`chcp 65001 >nul && ${command}`, { encoding: "utf8" }, (error, stdout, stderr) => {
+        exec(`cmd.exe /C ${command}`, { encoding: "buffer" }, (error, stdout, stderr) => {
             if (error) return reject(error);
-            if (stderr) return reject(stderr);
-            resolve(stdout.trim());
+            if (stderr.length > 0) return reject(stderr);
+
+            // Декодируем вывод из CP866 в UTF-8
+            resolve(iconv.decode(stdout, "cp866").trim());
         });
     });
 }
@@ -26,14 +29,14 @@ function cleanString(str) {
 // Получение имени ПК
 async function getComputerName() {
     return runCommand("wmic computersystem get Name /format:list")
-        .then((output) => cleanString(output.split("=")[1]))
+        .then((output) => cleanString(output.split("=")[1] || "UnknownPC"))
         .catch(() => "UnknownPC");
 }
 
 // Получение модели материнской платы
 async function getMotherboardModel() {
     return runCommand("wmic baseboard get Product /format:list")
-        .then((output) => cleanString(output.split("=")[1]))
+        .then((output) => cleanString(output.split("=")[1] || "UnknownBoard"))
         .catch(() => "UnknownBoard");
 }
 
@@ -84,6 +87,7 @@ async function getServices() {
         const processes = await getProcesses();
         const services = await getServices();
 
+        // Запись файлов в UTF-8
         await writeFile(
             path.join(__dirname, `${filenamePrefix}.process.json`),
             JSON.stringify(processes, null, 2),
@@ -97,8 +101,8 @@ async function getServices() {
         );
 
         console.log("Файлы успешно созданы:");
-        console.log(`- ${filenamePrefix}.process`);
-        console.log(`- ${filenamePrefix}.services`);
+        console.log(`- ${filenamePrefix}.process.json`);
+        console.log(`- ${filenamePrefix}.services.json`);
     } catch (error) {
         console.error("Ошибка:", error);
     }
