@@ -17,7 +17,6 @@ async function runCommand(command) {
     });
 }
 
-// Функция очистки строк
 function cleanString(str) {
     return str ? str.replace(/\r/g, "").trim() : "";
 }
@@ -33,15 +32,19 @@ async function getProcesses() {
             const parts = line.split(",");
             if (parts.length < 7) return null;
 
+            const pid = parseInt(parts[2], 10);
+            const threads = parseInt(parts[3], 10);
+            const memoryUsage = parseInt(parts[7], 10);
+
             return {
                 name: cleanString(parts[1]) || "Unknown",
-                pid: Number.isFinite(parseInt(parts[2], 10)) ? parseInt(parts[2], 10) : "Invalid",
-                threads: Number.isFinite(parseInt(parts[3], 10)) ? parseInt(parts[3], 10) : "Invalid",
+                pid: Number.isFinite(pid) && pid > 0 && pid < 999999 ? pid : "Invalid",
+                threads: Number.isFinite(threads) && threads > 0 && threads < 10000 ? threads : "Invalid",
                 startTime: cleanString(parts[4]) || "Unknown",
                 path: cleanString(parts[5]) || "Unknown",
                 commandLine: cleanString(parts[6]) || "Unknown",
-                memoryUsage: Number.isFinite(parseInt(parts[7], 10))
-                    ? (parseInt(parts[7], 10) / 1024).toFixed(2) + " KB"
+                memoryUsage: Number.isFinite(memoryUsage) && memoryUsage > 0 && memoryUsage < 100000000
+                    ? (memoryUsage / 1024).toFixed(2) + " KB"
                     : "Invalid"
             };
         })
