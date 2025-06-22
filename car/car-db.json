@@ -1,0 +1,172 @@
+[
+  {
+    "model": "Jetour Dashing",
+    "price": 3094190 ,
+    "price_benefit": 2894190,
+    "version": "Luxery",
+    "acceleration": 10.9,
+    "power": 190,
+    "torque": 275,
+    "gearbox": "7-DCT",
+    "suspension": null,
+    "class": "Большой",
+    "clearance": 210,
+    "dimensions_mm": [4590, 1900, 1685],
+    "wheelbase": 2720
+
+  },
+  {
+    "model": "GAC GS3 Emzoom",
+    "price": 2849000,
+    "price_benefit": 2649000,
+    "price_recommended": 2400000,
+    "version": "GL-R",
+    "acceleration": 7.5,
+    "power": 170,
+    "torque": 250,
+    "gearbox": "7-DCT",
+    "suspension": "торсионная балка",
+    "class": "Компактный кроссовер",
+    "clearance": 180,
+    "dimensions_mm": [4410, 1850, 1600],
+    "wheelbase": 2650,
+    "down_payment_percent": 80,
+    "trade_in_estimate": 400000,
+    "credit_months": 60
+  },
+  {
+    "model": "Geely Cityray",
+    "price": 3094190 ,
+    "price_benefit": 2894190,
+    "price_recommended": 2400000,
+    "version": "Luxery",
+    "acceleration": 8.0,
+    "power": 174,
+    "torque": 290,
+    "gearbox": "7-DCT",
+    "suspension": null,
+    "class": "Большой",
+    "clearance": 200,
+    "dimensions_mm": [4510, 1865, 1650],
+    "wheelbase": 2701,
+    "down_payment_percent": 80,
+    "trade_in_estimate": 380000,
+    "credit_months": 36
+  },
+  {
+    "model": "Changan CS35 Plus",
+    "price": 9.5,
+    "acceleration": 9.5,
+    "power": null,
+    "torque": null,
+    "gearbox": "7-DCT",
+    "suspension": null,
+    "class": "Большой",
+    "clearance": 180
+  },
+  {
+    "model": "Haval Jolion",
+    "price": 9.4,
+    "acceleration": 9.4,
+    "gearbox": "7-DCT",
+    "class": "Большой",
+    "clearance": 190
+  },
+  {
+    "model": "Geely Coolray",
+    "price": 7.9,
+    "acceleration": 7.9,
+    "gearbox": "7-DCT",
+    "class": "Компактный кроссовер",
+    "clearance": 180
+  },
+  {
+    "model": "Chery Tiggo 4 Pro",
+    "price": 10.5,
+    "acceleration": 10.5,
+    "gearbox": "7-DCT",
+    "class": "Большой",
+    "clearance": 190
+  },
+  {
+    "model": "Exeed LX",
+    "price": 10.2,
+    "acceleration": 10.2,
+    "gearbox": "7-DCT и 9‑CVT"
+  },
+  {
+    "model": "Changan UNI-T",
+    "price": 7.5,
+    "acceleration": 7.5,
+    "gearbox": "7-DCT"
+  },
+  {
+    "model": "Geely Atlas",
+    "price": 10.5,
+    "acceleration": 10.5,
+    "gearbox": "7-DCT"
+  },
+  {
+    "model": "Changan Lamore",
+    "price": 8.28,
+    "acceleration": 8.28,
+    "power": 170,
+    "torque": 260,
+    "gearbox": "7‑DCT",
+    "class": "Седан"
+  },
+  {
+    "model": "Dongfeng Aeolus Yixuan Max",
+    "price": 7.5,
+    "acceleration": 7.5,
+    "power": 197,
+    "torque": 300,
+    "gearbox": "7‑DCT",
+    "class": "Седан"
+  },
+  {
+    "model": "Geely Preface (Xing Rui)",
+    "price": 3.0,
+    "acceleration": 8.0,
+    "power": 181,
+    "torque": 290,
+    "gearbox": "7‑DCT",
+    "class": "Седан"
+  },
+  {
+    "model": "Geely EMGRAND",
+    "price": 1.89,
+    "acceleration": 12.6,
+    "power": 122,
+    "torque": 290,
+    "gearbox": "6АТ",
+    "suspension": "торсионная балка",
+    "class": "Седан",
+    "engine_description": "Бензиновый, 4-цилиндровый c многоточечным впрыском топлива"
+  },
+  {
+    "model": "OMODA S5 GT",
+    "version": "Tech6 1.5 CVT25",
+    "price": 9.7,
+    "acceleration": 9.7,
+    "power": 147,
+    "torque": 210,
+    "gearbox": "Вариатор CVT9",
+    "suspension": "торсионная балка",
+    "class": "Седан",
+    "dimensions_mm": [4691, 1814, 1493],
+    "wheelbase": 2650,
+    "engine_description": "Рядный четырёхцилиндровый, с многоточечным впрыском топлива"
+  },
+  {
+    "model": "Mitsubishi Lancer X",
+    "version": "1.5 МТ 2008",
+    "price": 10.9,
+    "acceleration": 10.9,
+    "power": 110,
+    "torque": 143,
+    "gearbox": "М",
+    "suspension": "многорычажка",
+    "class": "Седан"
+  }
+]

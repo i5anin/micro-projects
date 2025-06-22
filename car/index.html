@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>База автомобилей</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+<div class="container py-5">
+    <h1 class="mb-4">База автомобилей</h1>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle" id="carTable">
+            <thead>
+            <tr>
+                <th>Модель</th>
+                <th>Дилер Цена</th>
+                <th>Со скидкой</th>
+                <th>Скидка</th>
+                <th>Сумма кредита</th>
+                <th>Платёж/мес</th>
+                <th>Платёж точно</th>
+                <th>Реком. Цена</th>
+                <th>Перв. взнос (%)</th>
+                <th>Перв. взнос (₽)</th>
+                <th>Trade-in</th>
+                <th>Кредит мес</th>
+                <th>Комплектация</th>
+                <th>Класс</th>
+                <th>Мощность</th>
+                <th>Момент</th>
+                <th>Разгон</th>
+                <th>Коробка</th>
+                <th>Подвеска</th>
+                <th>Клиренс</th>
+                <th>Габариты</th>
+                <th>База</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let cars = []
+
+    async function loadCars() {
+        const res = await fetch('car-db.json')
+        cars = await res.json()
+        renderTable()
+    }
+
+    function getMinMax(field) {
+        const values = cars.map(c => c[field]).filter(v => typeof v === 'number')
+        return {
+            min: Math.min(...values),
+            max: Math.max(...values)
+        }
+    }
+
+    function tdSmart(field, value, ranges) {
+        if (typeof value !== 'number') return `<td></td>`
+
+        const isMin = value === ranges[field]?.min
+        const isMax = value === ranges[field]?.max
+        const formatted = field.includes('price')
+            ? (value / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 2 })
+            : value
+
+        if (['price', 'price_benefit', 'price_recommended'].includes(field) && isMin) {
+            return `<td class="table-success">${formatted}</td>`
+        }
+
+        if (field === 'acceleration' && isMin) {
+            return `<td class="table-success">${formatted}</td>`
+        }
+
+        if ((field === 'power' || field === 'torque') && isMax) {
+            return `<td class="table-success">${formatted}</td>`
+        }
+
+        if (field === 'clearance' && isMax) {
+            return `<td class="table-success">${formatted}</td>`
+        }
+
+        return `<td>${formatted}</td>`
+    }
+
+    function renderTable() {
+        const tbody = document.querySelector('#carTable tbody')
+        tbody.innerHTML = ''
+
+        const ranges = {
+            price: getMinMax('price'),
+            price_benefit: getMinMax('price_benefit'),
+            price_recommended: getMinMax('price_recommended'),
+            power: getMinMax('power'),
+            torque: getMinMax('torque'),
+            acceleration: getMinMax('acceleration'),
+            clearance: getMinMax('clearance')
+        }
+
+
+        for (const car of cars) {
+            const dimensions = Array.isArray(car.dimensions_mm)
+                ? car.dimensions_mm.join(' × ')
+                : ''
+
+            const discount = (car.price && car.price_benefit)
+                ? ((car.price - car.price_benefit) / 1_000).toLocaleString('ru-RU', {maximumFractionDigits: 2})
+                : ''
+
+            const creditMonths = car.credit_months ?? 0
+            const downPaymentRatio = (car.down_payment_percent ?? 0) / 100
+
+            const initialPayment = car.price_benefit
+                ? car.price_benefit * downPaymentRatio
+                : 0
+
+            const creditAmount = car.price_benefit
+                ? car.price_benefit * (1 - downPaymentRatio)
+                : 0
+
+            const annualRate = 0.01 / 100 // 0.01%
+            const monthlyRate = annualRate / 12
+
+            const monthlyPayment = creditAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -creditMonths))
+
+
+            const formattedInitialPayment = initialPayment > 0
+                ? Math.round(initialPayment).toLocaleString('ru-RU')
+                : ''
+
+            const formattedCredit = creditAmount > 0
+                ? Math.round(creditAmount).toLocaleString('ru-RU')
+                : ''
+
+            const formattedPayment = monthlyPayment > 0
+                ? Math.round(monthlyPayment).toLocaleString('ru-RU')
+                : ''
+
+            const formattedPaymentExact = monthlyPayment > 0
+                ? monthlyPayment.toLocaleString('ru-RU', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+                : ''
+
+            const tr = document.createElement('tr')
+            tr.innerHTML = `
+                <td>${car.model ?? ''}</td>
+                ${tdSmart('price', car.price, ranges)}
+                ${tdSmart('price_benefit', car.price_benefit, ranges)}
+                <td>${discount}</td>
+                <td>${formattedCredit}</td>
+                <td>${formattedPayment}</td>
+                <td>${formattedPaymentExact}</td>
+                ${tdSmart('price_recommended', car.price_recommended, ranges)}
+                <td>${car.down_payment_percent != null ? car.down_payment_percent + '%' : ''}</td>
+                <td>${formattedInitialPayment}</td>
+                <td>${car.trade_in_estimate?.toLocaleString('ru-RU') ?? ''}</td>
+                <td>${car.credit_months ?? ''}</td>
+                <td>${car.version ?? ''}</td>
+                <td>${car.class ?? ''}</td>
+                ${tdSmart('power', car.power, ranges)}
+                ${tdSmart('torque', car.torque, ranges)}
+                ${tdSmart('acceleration', car.acceleration, ranges)}
+                <td>${car.gearbox ?? ''}</td>
+                <td>${car.suspension ?? ''}</td>
+                ${tdSmart('clearance', car.clearance, ranges)}
+                <td>${dimensions}</td>
+                <td>${car.wheelbase ?? ''}</td>
+            `
+            tbody.appendChild(tr)
+        }
+    }
+
+    loadCars()
+</script>
+</body>
+</html>
